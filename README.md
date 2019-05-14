@@ -12,9 +12,10 @@ $ go build -o osmdownloader main.go
 ```
 
 ## Usage
+```
 -t  element type: node or way
 -i  node or way ids
-
+```
 
 ## Example
 ```shell
