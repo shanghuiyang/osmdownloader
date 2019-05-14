@@ -23,4 +23,4 @@ $ osmdownloader -t node -i 123,456,789
 # or
 $ osmdownloader -t way -i 123,456,789
 ```
-the map data will be saved to merge.osm
+the map data will be saved to ooooo.osm

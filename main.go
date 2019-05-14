@@ -75,9 +75,9 @@ func main() {
 
 	if len(files) > 0 {
 		args = append(args, "--write-xml")
-		args = append(args, "merge.osm")
+		args = append(args, "ooooo.osm")
 
-		fmt.Printf("generate merge.osm...\n")
+		fmt.Printf("generate ooooo.osm...\n")
 		cmd := exec.Command("osmosis", args...)
 		if err := cmd.Run(); err != nil {
 			fmt.Printf("failed to merge *.osm\n")
