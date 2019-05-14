@@ -15,7 +15,7 @@ func main() {
 
 	if len(os.Args) != 5 {
 		fmt.Println("error: invalid args")
-		fmt.Println("usage: geojson2poly -i infile.json -o outfile.poly")
+		fmt.Println("usage: osmdownloader -t way -i 123,456,789")
 		return
 	}
 	var elementType string
@@ -31,6 +31,7 @@ func main() {
 
 	fmt.Printf("type: %v\n", elementType)
 	fmt.Printf("ids: %v\n", ids)
+	fmt.Printf("--------\n")
 
 	files := map[string]string{}
 	var error int
@@ -46,7 +47,7 @@ func main() {
 			return
 		}
 
-		fmt.Printf("%v\t", id)
+		fmt.Printf("%v %v\t", elementType, id)
 		file := fmt.Sprintf("%v.osm", id)
 		cmd := exec.Command("wget", url, "-O", file)
 		if err := cmd.Run(); err != nil {

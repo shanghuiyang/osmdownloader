@@ -1,5 +1,5 @@
 # osmdownloader
-Download nodes or ways by ids from open street map
+Download nodes or ways by specific ids from open street map
 
 ## Install
 ```shell
@@ -12,6 +12,12 @@ $ go build -o osmdownloader main.go
 ```
 
 ## Usage
+-t  element type: node or way
+-i  node or way ids
+
+
+## Example
 ```shell
 $ osmdownloader -t way -i 123,456,789
 ```
+the map data will be saved to merge.osm
