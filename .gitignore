@@ -18,4 +18,5 @@ osmdownloader
 
 # others
 .DS_Store
+mybuild.sh
 *.osm
