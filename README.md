@@ -13,14 +13,17 @@ $ go build -o osmdownloader main.go
 
 ## Usage
 ```
--t  element type: node or way
--i  node or way ids
+osmdownloader -f xxx.osm [-n list | -w list]
+-f  the output file
+-n  the id list of nodes
+-w  the id list of ways
 ```
 
 ## Example
 ```shell
-$ osmdownloader -t node -i 123,456,789
+$ osmdownloader -f test.osm -n 111,222,333
 # or
-$ osmdownloader -t way -i 123,456,789
+$ osmdownloader -f test.osm -w 444,555,666
+# or
+$ osmdownloader -f test.osm -n 111,222,333 -w 444,555,666
 ```
-the map data will be saved to ooooo.osm
