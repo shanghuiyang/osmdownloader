@@ -1,3 +1,5 @@
+[![build status](https://travis-ci.org/shanghuiyang/osmdownloader.svg?branch=master)](https://travis-ci.org/shanghuiyang/osmdownloader)
+
 # osmdownloader
 Download nodes or ways by specific ids from open street map
 
