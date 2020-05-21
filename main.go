@@ -7,97 +7,77 @@ import (
 	"strings"
 )
 
+type element string
+
 const (
 	api = "https://www.openstreetmap.org/api/0.6"
+
+	node     element = "node"
+	way      element = "way"
+	relation element = "relation"
 )
 
 func main() {
 
 	argCount := len(os.Args)
-	if argCount != 5 && argCount != 7 {
+	if argCount != 5 && argCount != 7 && argCount != 9 {
 		fmt.Println("error: invalid args")
-		fmt.Println(`usage: osmdownloader -f "test.osm" -n 111,222 -w 333,444`)
-		return
+		fmt.Println(`usage: osmdownloader -f "test.osm" -n 111,222 -w 333,444 -r 555,666`)
+		os.Exit(-1)
 	}
-	var file string
-	var nodeIDs string
-	var wayIDs string
+	var (
+		file        string
+		nodeids     string
+		wayids      string
+		relationids string
+	)
 	for i, arg := range os.Args {
 		if arg == "-f" || arg == "-F" {
 			file = os.Args[i+1]
 		}
 		if arg == "-n" || arg == "-N" {
-			nodeIDs = os.Args[i+1]
+			nodeids = os.Args[i+1]
 		}
 		if arg == "-w" || arg == "-W" {
-			wayIDs = os.Args[i+1]
+			wayids = os.Args[i+1]
+		}
+		if arg == "-r" || arg == "-R" {
+			relationids = os.Args[i+1]
 		}
 	}
 
 	if file == "" {
 		fmt.Printf("need to specify a file for saving map data\n")
-		return
+		os.Exit(-1)
 	}
-	if nodeIDs == "" && wayIDs == "" {
-		fmt.Printf("need to specify the ids for node or way\n")
-		return
-	}
-
-	fmt.Printf("file: %v\n", file)
-	arrayNodeIDs := []string{}
-	arrayWayIDs := []string{}
-	if nodeIDs != "" {
-		fmt.Printf("nodes: %v\n", nodeIDs)
-		arrayNodeIDs = strings.Split(nodeIDs, ",")
-	}
-	if wayIDs != "" {
-		fmt.Printf("ways: %v\n", wayIDs)
-		arrayWayIDs = strings.Split(wayIDs, ",")
-	}
-	fmt.Printf("--------\n")
-
-	files := map[string]string{}
-	var error int
-	for _, id := range arrayNodeIDs {
-		url := fmt.Sprintf("%v/node/%v", api, id)
-		fmt.Printf("node %v\t", id)
-		f := fmt.Sprintf("n%v.osm", id)
-		cmd := exec.Command("wget", url, "-O", f)
-		if err := cmd.Run(); err != nil {
-			fmt.Printf("not found\n")
-			error++
-			continue
-		}
-		if isEmptyFile(f) {
-			fmt.Printf("not found\n")
-			error++
-			continue
-		}
-		fmt.Printf("ok\n")
-		files[f] = id
+	if nodeids == "" && wayids == "" && relationids == "" {
+		fmt.Printf("need to specify the element ids\n")
+		os.Exit(-1)
 	}
 
-	for _, id := range arrayWayIDs {
-		url := fmt.Sprintf("%v/way/%v/full", api, id)
-		fmt.Printf("way %v\t", id)
-		f := fmt.Sprintf("w%v.osm", id)
-		cmd := exec.Command("wget", url, "-O", f)
-		if err := cmd.Run(); err != nil {
-			fmt.Printf("not found\n")
-			error++
-			continue
-		}
-		if isEmptyFile(f) {
-			fmt.Printf("not found\n")
-			error++
-			continue
-		}
-		fmt.Printf("ok\n")
-		files[f] = id
+	var files []string
+	if nodeids != "" {
+		f := download(node, nodeids)
+		files = append(files, f...)
+	}
+
+	if wayids != "" {
+		f := download(way, wayids)
+		files = append(files, f...)
+	}
+	if relationids != "" {
+		f := download(relation, relationids)
+		files = append(files, f...)
+	}
+
+	fmt.Printf("---------------------------------------------\n")
+	if len(files) == 0 {
+		fmt.Printf("nothing was downloaded\n")
+		os.Exit(-1)
 	}
 
 	var args []string
-	for f := range files {
+	for _, f := range files {
 		args = append(args, "--read-xml")
 		args = append(args, f)
 	}
@@ -105,27 +85,60 @@ func main() {
 		args = append(args, "--merge")
 	}
 
-	if len(files) > 0 {
-		args = append(args, "--write-xml")
-		args = append(args, file)
+	args = append(args, "--write-xml")
+	args = append(args, file)
 
-		fmt.Printf("generate %v\n", file)
-		cmd := exec.Command("osmosis", args...)
-		if err := cmd.Run(); err != nil {
-			fmt.Printf("failed to merge *.osm\n")
-			error++
+	fmt.Printf("generate %v\n", file)
+	cmd := exec.Command("osmosis", args...)
+	if err := cmd.Run(); err != nil {
+		fmt.Printf("failed to merge *.osm, err: %v\n", err)
+		clear(files)
+		os.Exit(-1)
+	}
+
+	clear(files)
+	fmt.Printf("done in success\n")
+	os.Exit(0)
+}
+
+func download(e element, idlist string) []string {
+
+	if idlist == "" {
+		return nil
+	}
+	var (
+		succes []string
+		failed []string
+	)
+	defer func() {
+		clear(failed)
+	}()
+
+	ids := strings.Split(idlist, ",")
+	for _, id := range ids {
+		url := fmt.Sprintf("%v/%v/%v", api, e, id)
+		if e == way || e == relation {
+			url += "/full"
 		}
-	}
 
-	error += clear("n", arrayNodeIDs)
-	error += clear("w", arrayWayIDs)
+		fmt.Printf("%-15s%-15s", e, id)
+		f := fmt.Sprintf("%v%v.osm", e, id)
+		cmd := exec.Command("wget", url, "-O", f)
+		if err := cmd.Run(); err != nil {
+			fmt.Printf("%-15s\n", "[not found]")
+			failed = append(failed, f)
+			continue
+		}
 
-	if error == 0 {
-		fmt.Printf("done in success\n")
-	} else {
-		fmt.Printf("done with %v errors\n", error)
+		if isEmptyFile(f) {
+			fmt.Printf("%-15s\n", "[not found]")
+			failed = append(failed, f)
+			continue
+		}
+		fmt.Printf("%-15s\n", "[ok]")
+		succes = append(succes, f)
 	}
-	return
+	return succes
 }
 
 func isEmptyFile(file string) bool {
@@ -136,16 +149,15 @@ func isEmptyFile(file string) bool {
 	return fi.Size() == 0
 }
 
-func clear(elementType string, ids []string) int {
-	error := 0
-	for _, id := range ids {
-		file := fmt.Sprintf("%v%v.osm", elementType, id)
-		if _, err := os.Stat(file); err == nil {
-			if e := os.Remove(file); e != nil {
-				fmt.Printf("failed to delete %v, err: %v\n", file, e)
-				error++
-			}
+func clear(files []string) {
+	for _, file := range files {
+		if _, err := os.Stat(file); err != nil {
+			fmt.Printf("failed to remove %v, err: %v\n", files, err)
+			continue
+		}
+		if err := os.Remove(file); err != nil {
+			fmt.Printf("failed to remove %v, err: %v\n", file, err)
+			continue
 		}
 	}
-	return error
 }
