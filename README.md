@@ -1,7 +1,7 @@
 [![build status](https://travis-ci.org/shanghuiyang/osmdownloader.svg?branch=master)](https://travis-ci.org/shanghuiyang/osmdownloader)
 
 # osmdownloader
-Download nodes or ways by specific ids from open street map
+Download elements(nodes, ways or relations) using specific ids from [open street map](https://www.openstreetmap.org)
 
 ## Install
 Osmdownloader is dependent on [osmosis](https://wiki.openstreetmap.org/wiki/Osmosis). To use osmdownloader, you need to install osmosis first. Please refer to [Install Osmosis](https://wiki.openstreetmap.org/wiki/Osmosis/Installation) for learning how to install it on different platforms. Take MacOS as an example,
