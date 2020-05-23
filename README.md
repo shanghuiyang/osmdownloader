@@ -10,8 +10,7 @@ Osmdownloader is dependent on [osmosis](https://wiki.openstreetmap.org/wiki/Osmo
 $ brew install osmosis
 ```
 
-You can download the osmdownloader binary from [here](https://github.com/shanghuiyang/osmdownloader/releases),
-or build and install it from source codes.
+Build and install it from source codes.
 ```shell
 # get the source codes
 $ go get -u github.com/shanghuiyang/osmdownloader
@@ -20,6 +19,8 @@ $ go get -u github.com/shanghuiyang/osmdownloader
 $ cd $GOPATH/src/github.com/shanghuiyang/osmdownloader
 $ go install
 ```
+
+Or download the binary from [here](https://github.com/shanghuiyang/osmdownloader/releases).
 
 ## Usage
 ```
