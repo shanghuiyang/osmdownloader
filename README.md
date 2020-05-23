@@ -4,22 +4,18 @@
 Download nodes or ways by specific ids from open street map
 
 ## Install
-to use this tool, you need to install osmosis first.
-please refer to https://wiki.openstreetmap.org/wiki/Osmosis/Installation for installing it.
-for example, 
+osmdownloader is dependent on [osmosis](https://wiki.openstreetmap.org/wiki/Osmosis). To use osmdownloader, you need to install osmosis first.
+please refer to [Install Osmosis](https://wiki.openstreetmap.org/wiki/Osmosis/Installation) for learning how to install it.
 ```shell
-# for MacOS
+# install osmosis for MacOS
 $ brew install osmosis
-```
 
-install source codes
-```shell
-$ go get github.com/shanghuiyang/osmdownloader
-```
+# get the source codes
+$ go get -u github.com/shanghuiyang/osmdownloader
 
-## Build
-```shell
-$ go build -o osmdownloader main.go
+# build and install
+$ cd $GOPATH/src/github.com/shanghuiyang/osmdownloader
+$ go install
 ```
 
 ## Usage
