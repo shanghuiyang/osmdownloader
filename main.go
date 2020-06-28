@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"os/exec"
@@ -18,55 +19,35 @@ const (
 )
 
 func main() {
+	file := flag.String("f", "", "output file.")
+	nids := flag.String("n", "", "node id list.")
+	wids := flag.String("w", "", "way id list.")
+	rids := flag.String("r", "", "relation id list.")
+	flag.Parse()
 
-	argCount := len(os.Args)
-	if argCount != 5 && argCount != 7 && argCount != 9 {
-		fmt.Println("error: invalid args")
-		fmt.Println(`usage: osmdownloader -f "test.osm" -n 111,222 -w 333,444 -r 555,666`)
+	if *file == "" {
+		fmt.Printf("parameter error, missing -f\n")
+		usage()
 		os.Exit(-1)
 	}
-	var (
-		file        string
-		nodeids     string
-		wayids      string
-		relationids string
-	)
-	for i, arg := range os.Args {
-		if arg == "-f" || arg == "-F" {
-			file = os.Args[i+1]
-		}
-		if arg == "-n" || arg == "-N" {
-			nodeids = os.Args[i+1]
-		}
-		if arg == "-w" || arg == "-W" {
-			wayids = os.Args[i+1]
-		}
-		if arg == "-r" || arg == "-R" {
-			relationids = os.Args[i+1]
-		}
-	}
-
-	if file == "" {
-		fmt.Printf("need to specify a file for saving map data\n")
-		os.Exit(-1)
-	}
-	if nodeids == "" && wayids == "" && relationids == "" {
-		fmt.Printf("need to specify the element ids\n")
+	if *nids == "" && *wids == "" && *rids == "" {
+		fmt.Printf("parameter error, missing -n or -w or -r\n")
+		usage()
 		os.Exit(-1)
 	}
 
 	var files []string
-	if nodeids != "" {
-		f := download(node, nodeids)
+	if *nids != "" {
+		f := download(node, nids)
 		files = append(files, f...)
 	}
 
-	if wayids != "" {
-		f := download(way, wayids)
+	if *wids != "" {
+		f := download(way, wids)
 		files = append(files, f...)
 	}
-	if relationids != "" {
-		f := download(relation, relationids)
+	if *rids != "" {
+		f := download(relation, rids)
 		files = append(files, f...)
 	}
 
@@ -86,9 +67,9 @@ func main() {
 	}
 
 	args = append(args, "--write-xml")
-	args = append(args, file)
+	args = append(args, *file)
 
-	fmt.Printf("generate %v\n", file)
+	fmt.Printf("generate %v\n", *file)
 	cmd := exec.Command("osmosis", args...)
 	if err := cmd.Run(); err != nil {
 		fmt.Printf("failed to merge *.osm, err: %v\n", err)
@@ -101,9 +82,9 @@ func main() {
 	os.Exit(0)
 }
 
-func download(e element, idlist string) []string {
+func download(e element, ids *string) []string {
 
-	if idlist == "" {
+	if *ids == "" {
 		return nil
 	}
 	var (
@@ -114,8 +95,8 @@ func download(e element, idlist string) []string {
 		clear(failed)
 	}()
 
-	ids := strings.Split(idlist, ",")
-	for _, id := range ids {
+	idArray := strings.Split(*ids, ",")
+	for _, id := range idArray {
 		url := fmt.Sprintf("%v/%v/%v", api, e, id)
 		if e == way || e == relation {
 			url += "/full"
@@ -160,4 +141,14 @@ func clear(files []string) {
 			continue
 		}
 	}
+}
+
+func usage() {
+	fmt.Printf("-----------------------------\n")
+	fmt.Printf("Usage\n")
+	fmt.Printf("example: osmdownloader -f test.osm -n 111,222 -w 333,444 -r 555,666\n")
+	fmt.Printf("-f\tthe output file, required\n")
+	fmt.Printf("-n\tnode id list\n")
+	fmt.Printf("-w\tway id list\n")
+	fmt.Printf("-r\trelation id list\n")
 }
