@@ -1,6 +1,6 @@
-[![build status](https://travis-ci.org/shanghuiyang/osmdownloader.svg?branch=master)](https://travis-ci.org/shanghuiyang/osmdownloader)
-
 # osmdownloader
+[![Build status](https://github.com/shanghuiyang/osmdownloader/workflows/CI/badge.svg)](https://github.com/shanghuiyang/osmdownloader/actions)
+
 Download elements(nodes, ways or relations) using specific ids from [open street map](https://www.openstreetmap.org)
 
 ## Install
