@@ -1,5 +1,6 @@
 # osmdownloader
-[![Build status](https://github.com/shanghuiyang/osmdownloader/workflows/CI/badge.svg)](https://github.com/shanghuiyang/osmdownloader/actions)
+[![CI](https://github.com/shanghuiyang/osmdownloader/actions/workflows/ci.yml/badge.svg)](https://github.com/shanghuiyang/osmdownloader/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/shanghuiyang/osmdownloader/blob/master/LICENSE)
 
 Download elements(nodes, ways or relations) using specific ids from [open street map](https://www.openstreetmap.org)
 
